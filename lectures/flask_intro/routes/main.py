@@ -60,3 +60,23 @@ def delete(id):
     del users[id - 1]
     write_users(users)
     return redirect("/")
+
+
+@app.route("/search")
+def search():
+    # if key does not exist, returns None
+    first_name = request.args.get("first_name")
+    # if key does not exist, returns None
+    last_name = request.args.get("last_name")
+    # if key does not exist, returns None
+    work_area = request.args.get("work_area")
+    
+    users = get_users()
+    searched_users = []
+    for user in users:
+        if first_name == user["first_name"] or last_name == user["last_name"] or work_area == user["work_area"]:
+            searched_users.append(user)
+    if len(searched_users) > 0:                                               #  if list is not blank
+        return render_template("search.html", users=searched_users)
+    else:
+        return "<h2>nothing was found for your query</h2>"
