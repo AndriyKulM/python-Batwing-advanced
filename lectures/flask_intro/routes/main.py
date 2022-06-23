@@ -1,12 +1,28 @@
 from app import app
 from helpers.file import get_users, write_users
-from flask import render_template, request, redirect
+from flask import render_template, request, redirect, url_for
 
 
 @app.route("/")
 def main():
-    users = get_users()
-    return render_template("index.html", users=users)
+
+    # if key does not exist, returns None
+    searh_query = request.args.get("searh_query")
+    if searh_query:
+    
+        users = get_users()
+
+        searched_users = []
+        for user in users:
+            if searh_query == user["first_name"] or searh_query == user["last_name"] or searh_query == user["work_area"]:
+                searched_users.append(user)
+        if len(searched_users) > 0:                                               #  if list is not blank
+            return render_template("search.html", users=searched_users)
+        else:
+            return "<h2>nothing was found for your query</h2>"
+    else:
+        users = get_users()
+        return render_template("index.html", users=users)
 
 
 @app.route("/user-add")
@@ -60,23 +76,3 @@ def delete(id):
     del users[id - 1]
     write_users(users)
     return redirect("/")
-
-
-@app.route("/search")
-def search():
-    # if key does not exist, returns None
-    first_name = request.args.get("first_name")
-    # if key does not exist, returns None
-    last_name = request.args.get("last_name")
-    # if key does not exist, returns None
-    work_area = request.args.get("work_area")
-    
-    users = get_users()
-    searched_users = []
-    for user in users:
-        if first_name == user["first_name"] or last_name == user["last_name"] or work_area == user["work_area"]:
-            searched_users.append(user)
-    if len(searched_users) > 0:                                               #  if list is not blank
-        return render_template("search.html", users=searched_users)
-    else:
-        return "<h2>nothing was found for your query</h2>"
